@@ -1,0 +1,47 @@
+# k3d cluster definition — apply with:
+#   k3d cluster create --config cluster/k3d-config.yaml
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: platform-lab
+servers: 1
+agents: 2
+kubeAPI:
+  host: "0.0.0.0"
+  hostIP: "0.0.0.0"
+  hostPort: "6550"
+image: rancher/k3s:v1.35.2-k3s1
+network: platform-lab-net
+volumes:
+  # Local-path PVC storage survives cluster restarts (not `cluster delete`).
+  - volume: platform-lab-storage:/var/lib/rancher/k3s/storage
+    nodeFilters:
+      - server:*
+      - agent:*
+ports:
+  # Ingress
+  - port: 8080:80
+    nodeFilters:
+      - loadbalancer
+  - port: 8443:443
+    nodeFilters:
+      - loadbalancer
+  # Grafana (also reachable via `make port-forward-grafana`)
+  - port: 3000:30300
+    nodeFilters:
+      - server:0
+options:
+  k3d:
+    wait: true
+    timeout: "120s"
+    disableLoadbalancer: false
+  k3s:
+    extraArgs:
+      # Disable Traefik if you'd rather bring your own ingress controller
+      # via Terraform/Helm later; comment out to keep the k3s default.
+      - arg: "--disable=traefik"
+        nodeFilters:
+          - server:*
+  kubeconfig:
+    updateDefaultKubeconfig: true
+    switchCurrentContext: true

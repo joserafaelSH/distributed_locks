@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "service-template.fullname" . }}
+  labels:
+    {{- include "service-template.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "service-template.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "service-template.selectorLabels" . | nindent 8 }}
+      annotations:
+        {{- if .Values.pyroscope.enabled }}
+        profiles.grafana.com/cpu.scrape: "true"
+        profiles.grafana.com/cpu.port_name: "pprof"
+        profiles.grafana.com/memory.scrape: "true"
+        profiles.grafana.com/memory.port_name: "pprof"
+        profiles.grafana.com/goroutine.scrape: "true"
+        profiles.grafana.com/goroutine.port_name: "pprof"
+        {{- end }}
+    spec:
+      containers:
+        - name: {{ include "service-template.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.ports.http }}
+            - name: grpc
+              containerPort: {{ .Values.ports.grpc }}
+            - name: pprof
+              containerPort: {{ .Values.ports.pprof }}
+          env:
+            - name: SERVICE_NAME
+              value: {{ include "service-template.name" . }}
+            - name: ENVIRONMENT
+              value: {{ .Values.env.environment | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.env.logLevel | quote }}
+            - name: HTTP_PORT
+              value: "{{ .Values.ports.http }}"
+            - name: GRPC_PORT
+              value: "{{ .Values.ports.grpc }}"
+            - name: PPROF_PORT
+              value: "{{ .Values.ports.pprof }}"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: {{ .Values.env.otlpEndpoint | quote }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probes.liveness.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probes.readiness.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

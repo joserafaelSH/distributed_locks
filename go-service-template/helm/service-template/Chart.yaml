@@ -1,0 +1,6 @@
+apiVersion: v2
+name: service-template
+description: Helm chart skeleton for services bootstrapped from the shared Go service template
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

@@ -1,0 +1,24 @@
+# Promtail DaemonSet — tails container logs on every node and ships to Loki.
+config:
+  clients:
+    - url: http://loki:3100/loki/api/v1/push
+  snippets:
+    pipelineStages:
+      - json:
+          expressions:
+            level: level
+            trace_id: trace_id
+            span_id: span_id
+      - labels:
+          level:
+          trace_id:
+
+serviceMonitor:
+  enabled: true
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    memory: 128Mi

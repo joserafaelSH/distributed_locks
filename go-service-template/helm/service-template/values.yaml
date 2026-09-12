@@ -1,0 +1,53 @@
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: service-template
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+ports:
+  http: 8080
+  grpc: 9090
+  pprof: 6060
+
+service:
+  type: ClusterIP
+
+env:
+  environment: local
+  logLevel: info
+  # Points at the shared OTel Collector deployed by the foundation's
+  # Terraform. Uses in-cluster DNS — matches the correction we made when
+  # Grafana's manual Tempo URL failed with the localhost address.
+  otlpEndpoint: "otel-collector-opentelemetry-collector.observability:4317"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    memory: 256Mi
+
+probes:
+  liveness:
+    path: /healthz
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  readiness:
+    path: /readyz
+    initialDelaySeconds: 5
+    periodSeconds: 10
+
+# Scraped by Pyroscope's bundled Alloy agent via profiles.grafana.com/*
+# annotations — NOT pyroscope.io/* (that was our original, incorrect
+# assumption, corrected after inspecting the chart's real defaults).
+pyroscope:
+  enabled: true
+
+serviceMonitor:
+  enabled: false
+  path: /metrics
+  interval: 15s
