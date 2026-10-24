@@ -1,4 +1,4 @@
-module github.com/joserafaelSH/golang-software-engineer/go-service-template
+module github.com/joserafaelSH/distributed_locks
 
 go 1.26.3
 
