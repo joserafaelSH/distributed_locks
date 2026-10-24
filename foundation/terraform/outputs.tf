@@ -6,8 +6,16 @@ output "apps_namespace" {
   value = module.namespaces.apps_namespace
 }
 
-output "grafana_service" {
-  value = module.observability.grafana_service_name
+output "infra_namespace" {
+  value = module.namespaces.infra_namespace
+}
+
+output "redis_service" {
+  value = module.infra.redis_service_name
+}
+
+output "postgres_service" {
+  value = module.infra.postgres_service_name
 }
 
 output "prometheus_service" {

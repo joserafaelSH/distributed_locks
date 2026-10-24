@@ -24,6 +24,24 @@ env:
   # Grafana's manual Tempo URL failed with the localhost address.
   otlpEndpoint: "otel-collector-opentelemetry-collector.observability:4317"
 
+# Backing services from the foundation's infra module. Hosts are in-cluster
+# DNS names (<service>.<namespace>); `localhost` doesn't work from a pod.
+# Passwords are intentionally empty here: set them in values.local.yaml
+# (gitignored) or with --set.
+postgres:
+  host: postgres-postgresql.infra
+  database: mydb
+  username: postgres
+  password: ""
+
+redis:
+  addr: redis-master.infra:6379
+  password: ""
+
+worker:
+  # How often the poller ticks (the app's own default is 60s).
+  pollInterval: 10s
+
 resources:
   requests:
     cpu: 100m
@@ -31,13 +49,16 @@ resources:
   limits:
     memory: 256Mi
 
+# The service is a background worker and no longer serves HTTP, so probes
+# target the always-on pprof listener (the named port `pprof`).
 probes:
+  port: pprof
   liveness:
-    path: /healthz
+    path: /debug/pprof/cmdline
     initialDelaySeconds: 5
     periodSeconds: 10
   readiness:
-    path: /readyz
+    path: /debug/pprof/cmdline
     initialDelaySeconds: 5
     periodSeconds: 10
 

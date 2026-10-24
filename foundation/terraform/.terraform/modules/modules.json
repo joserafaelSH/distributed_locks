@@ -1,1 +1,1 @@
-{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"namespaces","Source":"./modules/namespaces","Dir":"modules/namespaces"},{"Key":"observability","Source":"./modules/observability","Dir":"modules/observability"}]}
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"infra","Source":"./modules/infra","Dir":"modules/infra"},{"Key":"namespaces","Source":"./modules/namespaces","Dir":"modules/namespaces"},{"Key":"observability","Source":"./modules/observability","Dir":"modules/observability"}]}

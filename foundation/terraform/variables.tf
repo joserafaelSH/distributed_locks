@@ -22,10 +22,30 @@ variable "apps_namespace" {
   default     = "apps"
 }
 
+variable "infra_namespace" {
+  description = "Namespace for infrastructure components (Redis, Kafka, etc.)"
+  type        = string
+  default     = "infra"
+}
+
 variable "grafana_admin_password" {
   description = "Grafana admin password (change for anything beyond local dev)"
   type        = string
   default     = "admin"
+  sensitive   = true
+}
+
+variable "postgres_admin_password" {
+  description = "PostgreSQL postgres user password (change for anything beyond local dev)"
+  type        = string
+  default     = "postgres"
+  sensitive   = true
+}
+
+variable "redis_password" {
+  description = "Redis auth password (change for anything beyond local dev)"
+  type        = string
+  default     = "redis"
   sensitive   = true
 }
 
